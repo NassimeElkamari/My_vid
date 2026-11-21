@@ -3,6 +3,8 @@ import { Wach3arefComposition } from "./darija/Wach3arefReel";
 import { OpeningV2Composition } from "./darija/opening-v2/OpeningV2";
 import { Reel02Composition } from "./darija/reel-02/Reel02";
 
+import { TicklesComposition } from "./darija/reel-03/TicklesReel";
+
 export const RemotionRoot: React.FC = () => {
   return (
     <>
@@ -10,6 +12,7 @@ export const RemotionRoot: React.FC = () => {
       <Wach3arefComposition />
       <OpeningV2Composition />
       <Reel02Composition />
+      <TicklesComposition />
     </>
   );
 };
