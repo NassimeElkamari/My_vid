@@ -34,24 +34,51 @@ const Brain: React.FC<{x:number; y:number; scale?:number; pulse:number; highligh
   {highlight && <circle cx="106" cy="105" r={39 + 6*Math.sin(pulse/5)} fill="none" stroke={gold} strokeWidth="5" opacity=".7" />}
 </g>;
 
-const Finger: React.FC<{x:number; y:number; flip?:boolean; frame:number; color?:string}> = ({x,y,flip=false,frame,color='#ffb976'}) => <g transform={`translate(${x} ${y + Math.sin(frame/8)*13}) scale(${flip ? -1 : 1} 1)`}>
-  <path d="M-235 35 C-194 -24 -159 -44 -118 -39 L-19 -26 C4 -24 17 -38 34 -42 C50 -46 65 -36 65 -21 C65 -8 54 1 40 7 L-27 37 L-89 91 C-125 119 -178 108 -214 83 Z" fill={color} stroke="#ffe0ad" strokeWidth="5" strokeLinejoin="round" />
-  <path d="M-115 -38 L-29 -24 M-89 91 L-43 52" fill="none" stroke="#cb8159" strokeWidth="4" strokeLinecap="round" />
+const Finger: React.FC<{x:number; y:number; flip?:boolean; frame:number}> = ({x,y,flip=false,frame}) => <g transform={`translate(${x} ${y + Math.sin(frame/8)*13}) scale(${flip ? -1 : 1} 1)`}>
+  <image href={staticFile('reel3/pointing-hand.png')} x="-330" y="-88" width="350" height="145" preserveAspectRatio="xMidYMid meet" />
 </g>;
 
-const Label: React.FC<{x:number;y:number;children:React.ReactNode;accent?:string}> = ({x,y,children,accent=blue}) => <g transform={`translate(${x} ${y})`}><rect x="-170" y="-36" width="340" height="72" rx="36" fill="#0e3267" stroke={accent} strokeWidth="2"/><text textAnchor="middle" dominantBaseline="central" fill="white" fontSize="32" fontFamily="Tajawal" fontWeight="700">{children}</text></g>;
+const Label: React.FC<{x:number;y:number;children:React.ReactNode;accent?:string}> = ({x,y,children,accent=blue}) => <g transform={`translate(${x} ${y})`}>
+  <text textAnchor="middle" dominantBaseline="central" fill="white" fontSize="31" fontFamily="Tajawal" fontWeight="700">{children}</text>
+  <path d="M-65 35 H65" stroke={accent} strokeWidth="3" strokeLinecap="round" opacity=".8" />
+</g>;
 
 const Signal: React.FC<{path:string; frame:number; color?:string; speed?:number}> = ({path,frame,color=gold,speed=75}) => <g><path d={path} fill="none" stroke={color} opacity=".23" strokeWidth="8" strokeLinecap="round"/><path d={path} fill="none" stroke={color} strokeWidth="12" strokeLinecap="round" strokeDasharray="5 350" pathLength="350" strokeDashoffset={-((frame%speed)/speed)*350} /></g>;
 
 const Scene: React.FC<{kind:number;frame:number}> = ({kind,frame}) => {
-  if (kind === 0) return <>
-    <text x="540" y="465" textAnchor="middle" fill="white" fontSize="76" fontWeight="700">علاش الدغدغة؟</text>
-    <g transform="translate(0 80)"><rect x="80" y="520" width="440" height="730" rx="45" fill="#123466" stroke="#337fda" strokeWidth="3"/><rect x="560" y="520" width="440" height="730" rx="45" fill="#123466" stroke="#ffc45a" strokeWidth="3"/>
-      <Label x={300} y={600}>أنا كندغدغ راسي</Label><Label x={780} y={600} accent={gold}>شي واحد آخر</Label>
-      <Brain x={300} y={850} scale={0.73} pulse={frame}/><Brain x={780} y={850} scale={0.73} pulse={frame} highlight />
-      <Finger x={365} y={1090} frame={frame}/><Finger x={850} y={1090} flip frame={frame} />
-      <text x="300" y="1215" textAnchor="middle" fill={blue} fontSize="43" fontWeight="700">متوقّعة</text><text x="780" y="1215" textAnchor="middle" fill={gold} fontSize="43" fontWeight="700">مفاجئة!</text>
-    </g></>;
+  if (kind === 0) {
+    const showOther = ease(frame, 8, 24);
+    const showSelf = ease(frame, 91, 107);
+    const showQuestion = ease(frame, 202, 216);
+    const zoom = 1 + .06 * ease(frame, 30, 85);
+    return <>
+      <text x="540" y="465" textAnchor="middle" fill="white" fontSize="76" fontWeight="700" opacity={1-showQuestion}>علاش الدغدغة؟</text>
+      <g opacity={1-showQuestion} transform={`translate(540 1000) scale(${zoom}) translate(-540 -1000)`}>
+        <g opacity={showOther} transform={`translate(${(1-showOther)*100} 0)`}>
+          <rect x="560" y="600" width="440" height="680" rx="45" fill="#123466" stroke="#ffc45a" strokeWidth="3"/>
+          <Label x={780} y={685} accent={gold}>شي واحد آخر</Label>
+          <Brain x={780} y={900} scale={0.73} pulse={frame} highlight />
+          <Finger x={815} y={1100} flip frame={frame}/>
+          {[0,1,2].map(i => <circle key={i} cx="780" cy="1100" r={30+((frame+i*16)%48)*2} fill="none" stroke={gold} strokeWidth="4" opacity={.65*(1-((frame+i*16)%48)/48)}/>)}
+          <text x="780" y="1220" textAnchor="middle" fill={gold} fontSize="43" fontWeight="700">مفاجئة!</text>
+        </g>
+        <g opacity={showSelf} transform={`translate(${-(1-showSelf)*100} 0)`}>
+          <rect x="80" y="600" width="440" height="680" rx="45" fill="#123466" stroke="#337fda" strokeWidth="3"/>
+          <Label x={300} y={685}>أنا كندغدغ راسي</Label>
+          <Brain x={300} y={900} scale={0.73} pulse={frame}/>
+          <Finger x={335} y={1100} frame={frame}/>
+          <text x="300" y="1220" textAnchor="middle" fill={blue} fontSize="43" fontWeight="700">متوقّعة</text>
+        </g>
+      </g>
+      <g opacity={showQuestion} transform={`translate(540 920) scale(${.8+.2*showQuestion}) translate(-540 -920)`}>
+        <text x="540" y="545" textAnchor="middle" fill="white" fontSize="62" fontWeight="700">الجواب فالمخ!</text>
+        <Brain x={540} y={920} scale={1.55} pulse={frame} highlight />
+        <Signal path="M 140 1260 C 260 1130 330 1090 385 1020" frame={frame} color={blue}/>
+        <Signal path="M 940 1260 C 820 1130 750 1090 695 1020" frame={frame+20}/>
+        <text x="540" y="1390" textAnchor="middle" fill={gold} fontSize="52" fontWeight="700">المخ كيتوقّع الإحساس</text>
+      </g>
+    </>;
+  }
   if (kind === 1) return <>
     <Label x={540} y={510}>من الجلد حتى للمخ</Label>
     <Brain x={540} y={745} scale={1.05} pulse={frame} highlight />
@@ -74,17 +101,19 @@ const Scene: React.FC<{kind:number;frame:number}> = ({kind,frame}) => {
     <Brain x={540} y={780} scale={1.05} pulse={frame} highlight />
     <Signal path="M 540 1420 C 450 1220 450 1100 510 1010" frame={frame}/>
     <Finger x={580} y={1430} frame={frame}/>
-    <rect x="160" y="1090" width="265" height="80" rx="40" fill="#0c3267" stroke={blue} strokeWidth="2"/><text x="292" y="1142" fill="white" fontSize="31" textAnchor="middle">توقّع اللمسة</text>
-    <rect x="655" y="1090" width="265" height="80" rx="40" fill="#0c3267" stroke={gold} strokeWidth="2"/><text x="788" y="1142" fill="white" fontSize="31" textAnchor="middle">اللمسة الفعلية</text>
+    <text x="292" y="1142" fill="white" fontSize="31" textAnchor="middle">توقّع اللمسة</text>
+    <text x="788" y="1142" fill="white" fontSize="31" textAnchor="middle">اللمسة الفعلية</text>
     <text x="540" y="1640" fill={blue} fontSize="48" textAnchor="middle" fontWeight="700">إحساس متوقّع ← استجابة أخف</text>
   </>;
   if (kind === 4) return <>
     <Label x={540} y={520} accent={gold}>ملي شي واحد آخر كيدغدغك</Label>
-    <Brain x={540} y={780} scale={1.05} pulse={frame} highlight />
+    <Brain x={540} y={780} scale={1.05 + .22*ease(frame,145,200) - .22*ease(frame,270,320)} pulse={frame} highlight />
     <Signal path="M 540 1430 C 410 1280 665 1150 540 1000" frame={frame} speed={42}/>
     <Finger x={585} y={1435} flip frame={frame}/>
     {[0,1,2].map(i=><circle key={i} cx="540" cy="1435" r={40+((frame+i*18)%54)*2} fill="none" stroke={gold} strokeWidth="5" opacity={1-((frame+i*18)%54)/54}/>)}
-    <text x="540" y="1650" fill={gold} fontSize="51" textAnchor="middle" fontWeight="700">أقل توقّعاً · إحساس أقوى</text>
+    <g opacity={fade(frame,0,145)}><text x="540" y="1620" fill={gold} fontSize="49" textAnchor="middle" fontWeight="700">لمسة أقل توقّعاً</text></g>
+    <g opacity={fade(frame,145,285)}><text x="540" y="1620" fill={gold} fontSize="49" textAnchor="middle" fontWeight="700">المفاجأة كتقوّي الإحساس</text></g>
+    <g opacity={ease(frame,285,300)}><text x="540" y="1620" fill={gold} fontSize="49" textAnchor="middle" fontWeight="700">وقدّاش كتجيك مفاجئة!</text></g>
   </>;
   return <>
     <Brain x={540} y={930} scale={1.35} pulse={frame} highlight />
@@ -107,7 +136,7 @@ export const TicklesReel: React.FC = () => {
   return <AbsoluteFill style={{background:'radial-gradient(circle at 50% 43%, #123e78 0%, #071c43 72%)', overflow:'hidden', fontFamily:'Tajawal, sans-serif'}}>
     <svg width="1080" height="1920" viewBox="0 0 1080 1920" style={{position:'absolute'}}>
       <defs><pattern id="dots" width="90" height="90" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="2" fill="#56baff" opacity=".22"/></pattern></defs><rect width="1080" height="1920" fill="url(#dots)"/>
-      {scenes.map((scene,index) => frame >= scene.start && frame < scene.end ? <g key={scene.start} opacity={index === 0 ? 1 : ease(frame,scene.start,scene.start+10)}><Scene kind={index} frame={frame-scene.start}/></g> : null)}
+      {scenes.map((scene,index) => frame >= scene.start && frame < scene.end ? <g key={scene.start} opacity={index === 0 ? 1 : ease(frame,scene.start,scene.start+10)}><g transform={`translate(540 1030) scale(${1 + .035 * Math.sin((frame-scene.start)/65)}) translate(-540 -1030)`}><Scene kind={index} frame={frame-scene.start}/></g></g> : null)}
     </svg>
     <div dir="rtl" style={{position:'absolute',top:85,right:90,color:'#e4f6ff',fontSize:31}}>واش عارف؟ <span style={{color:gold}}>✳</span></div>
     {subtitle && <div dir="rtl" lang="ar" style={{position:'absolute',top:210,left:75,right:75,display:'flex',justifyContent:'center',textAlign:'center'}}><div style={{background:'rgba(4,19,47,.93)',border:'1px solid #3465a5',borderRadius:22,padding:'13px 24px',fontWeight:700,fontSize:43,lineHeight:1.38,color:'#fff',maxWidth:930,opacity:fade(frame,subtitle[0]*30,subtitle[1]*30)}}><div>{subtitle[2]}</div>{subtitle[3] && <div style={{color:'#ffc077'}}>{subtitle[3]}</div>}</div></div>}
