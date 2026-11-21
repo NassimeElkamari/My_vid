@@ -45,6 +45,12 @@ const Label: React.FC<{x:number;y:number;children:React.ReactNode;accent?:string
 
 const Signal: React.FC<{path:string; frame:number; color?:string; speed?:number}> = ({path,frame,color=gold,speed=75}) => <g><path d={path} fill="none" stroke={color} opacity=".23" strokeWidth="8" strokeLinecap="round"/><path d={path} fill="none" stroke={color} strokeWidth="12" strokeLinecap="round" strokeDasharray="5 350" pathLength="350" strokeDashoffset={-((frame%speed)/speed)*350} /></g>;
 
+
+const FlowDot: React.FC<{x1:number;y1:number;x2:number;y2:number;frame:number;start:number;color:string}> = ({x1,y1,x2,y2,frame,start,color}) => {
+  const progress = ease(frame,start,start+25);
+  return <g opacity={ease(frame,start,start+5)}><line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth="5" strokeDasharray="10 12" opacity=".45"/><circle cx={x1+(x2-x1)*progress} cy={y1+(y2-y1)*progress} r="14" fill={color} /><circle cx={x2} cy={y2} r={12+8*ease(frame,start+20,start+25)} fill="none" stroke={color} strokeWidth="4" opacity={ease(frame,start+18,start+25)} /></g>;
+};
+
 const Scene: React.FC<{kind:number;frame:number}> = ({kind,frame}) => {
   if (kind === 0) {
     const showOther = ease(frame, 8, 24);
@@ -79,6 +85,36 @@ const Scene: React.FC<{kind:number;frame:number}> = ({kind,frame}) => {
       </g>
     </>;
   }
+  if (kind === 6) return <>
+    <text x="540" y="495" textAnchor="middle" fill="white" fontSize="49" fontWeight="700">اللمسة كتبدا من الجلد</text>
+    <image href={staticFile('reel3/skin-receptors.png')} x="75" y="635" width="930" height="730" preserveAspectRatio="xMidYMid meet" />
+    {[0,1,2].map(i => <circle key={i} cx="490" cy="1050" r={30+((frame+i*20)%60)*2} fill="none" stroke={gold} strokeWidth="5" opacity={.8*(1-((frame+i*20)%60)/60)}/>)}
+    <text x="540" y="1455" textAnchor="middle" fill={gold} fontSize="43" fontWeight="700">المستقبلات كتحس باللمسة</text>
+    <text x="540" y="1535" textAnchor="middle" fill="white" fontSize="38">والأعصاب كتنقل الإشارة للمخ</text>
+  </>;
+  if (kind === 7) return <>
+    <text x="540" y="495" textAnchor="middle" fill="white" fontSize="48" fontWeight="700">كيفاش كتوصل الإشارة؟</text>
+    <Brain x={540} y={730} scale={0.9} pulse={frame} />
+    <Finger x={590} y={1350} frame={frame}/>
+    <FlowDot x1={410} y1={865} x2={310} y2={1190} frame={frame%115} start={0} color={blue}/>
+    <FlowDot x1={310} y1={1190} x2={510} y2={1350} frame={frame%115} start={25} color={blue}/>
+    <FlowDot x1={630} y1={1350} x2={800} y2={1190} frame={frame%115} start={50} color={gold}/>
+    <FlowDot x1={800} y1={1190} x2={650} y2={865} frame={frame%115} start={75} color={gold}/>
+    <text x="200" y="1040" textAnchor="middle" fill={blue} fontSize="37" fontWeight="700">أمر الحركة ↓</text>
+    <text x="870" y="1040" textAnchor="middle" fill={gold} fontSize="37" fontWeight="700">↑ إشارة اللمس</text>
+    <text x="540" y="1570" textAnchor="middle" fill="white" fontSize="39">المخ ← اليد ← الجلد ← المخ</text>
+  </>;
+  if (kind === 8) return <>
+    <text x="540" y="500" textAnchor="middle" fill="white" fontSize="48" fontWeight="700">المخ كيقارن الإحساس</text>
+    <Brain x={540} y={785} scale={1.08} pulse={frame} highlight />
+    <text x="250" y="1140" textAnchor="middle" fill={blue} fontSize="40" fontWeight="700">اللمسة المتوقّعة</text>
+    <text x="830" y="1140" textAnchor="middle" fill={gold} fontSize="40" fontWeight="700">اللمسة الفعلية</text>
+    <FlowDot x1={250} y1={1200} x2={495} y2={1320} frame={frame%100} start={0} color={blue}/>
+    <FlowDot x1={830} y1={1200} x2={585} y2={1320} frame={frame%100} start={0} color={gold}/>
+    <circle cx="540" cy="1350" r={72+8*Math.sin(frame/8)} fill="#174c85" stroke="#a9eaff" strokeWidth="4"/>
+    <text x="540" y="1365" textAnchor="middle" fill="white" fontSize="46" fontWeight="700">≈</text>
+    <text x="540" y="1550" textAnchor="middle" fill={blue} fontSize="43" fontWeight="700">إلا توافقو، الاستجابة كتخفّ</text>
+  </>;
   if (kind === 1) return <>
     <Label x={540} y={510}>من الجلد حتى للمخ</Label>
     <Brain x={540} y={745} scale={1.05} pulse={frame} highlight />
@@ -131,12 +167,12 @@ export const TicklesReel: React.FC = () => {
     const face = new FontFace('Tajawal', `url(${staticFile('fonts/darija/Tajawal-Bold.ttf')})`, {weight:'700'});
     face.load().then(font => {document.fonts.add(font); continueRender(fontHandle);}).catch((error:unknown) => {console.error(error); continueRender(fontHandle);});
   }, [fontHandle]);
-  const scenes = [{start:0,end:350},{start:340,end:560},{start:550,end:735},{start:725,end:810},{start:800,end:1225},{start:1215,end:1403}];
+  const scenes = [{kind:0,start:0,end:350},{kind:6,start:340,end:445},{kind:7,start:435,end:560},{kind:2,start:550,end:660},{kind:8,start:650,end:810},{kind:4,start:800,end:1010},{kind:6,start:1000,end:1100},{kind:4,start:1090,end:1225},{kind:5,start:1215,end:1403}];
   const subtitle = cues.find(([start,end]) => frame >= start*30 && frame < end*30);
   return <AbsoluteFill style={{background:'radial-gradient(circle at 50% 43%, #123e78 0%, #071c43 72%)', overflow:'hidden', fontFamily:'Tajawal, sans-serif'}}>
     <svg width="1080" height="1920" viewBox="0 0 1080 1920" style={{position:'absolute'}}>
       <defs><pattern id="dots" width="90" height="90" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="2" fill="#56baff" opacity=".22"/></pattern></defs><rect width="1080" height="1920" fill="url(#dots)"/>
-      {scenes.map((scene,index) => frame >= scene.start && frame < scene.end ? <g key={scene.start} opacity={index === 0 ? 1 : ease(frame,scene.start,scene.start+10)}><g transform={`translate(540 1030) scale(${1 + .035 * Math.sin((frame-scene.start)/65)}) translate(-540 -1030)`}><Scene kind={index} frame={frame-scene.start}/></g></g> : null)}
+      {scenes.map((scene,index) => frame >= scene.start && frame < scene.end ? <g key={scene.start} opacity={index === 0 ? 1 : ease(frame,scene.start,scene.start+10)}><g transform={`translate(540 1030) scale(${1 + .035 * Math.sin((frame-scene.start)/65)}) translate(-540 -1030)`}><Scene kind={scene.kind} frame={frame-scene.start}/></g></g> : null)}
     </svg>
     <div dir="rtl" style={{position:'absolute',top:85,right:90,color:'#e4f6ff',fontSize:31}}>واش عارف؟ <span style={{color:gold}}>✳</span></div>
     {subtitle && <div dir="rtl" lang="ar" style={{position:'absolute',top:210,left:75,right:75,display:'flex',justifyContent:'center',textAlign:'center'}}><div style={{background:'rgba(4,19,47,.93)',border:'1px solid #3465a5',borderRadius:22,padding:'13px 24px',fontWeight:700,fontSize:43,lineHeight:1.38,color:'#fff',maxWidth:930,opacity:fade(frame,subtitle[0]*30,subtitle[1]*30)}}><div>{subtitle[2]}</div>{subtitle[3] && <div style={{color:'#ffc077'}}>{subtitle[3]}</div>}</div></div>}
