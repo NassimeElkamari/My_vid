@@ -1,5 +1,5 @@
 import React from 'react';
-import {AbsoluteFill, Audio, Composition, continueRender, delayRender, interpolate, staticFile, useCurrentFrame} from 'remotion';
+import {AbsoluteFill, Audio, Composition, Sequence, continueRender, delayRender, interpolate, staticFile, useCurrentFrame} from 'remotion';
 
 const audio = 'reel3/ElevenLabs_2026-11-21T13_43_33_Badr - Warm Moroccan Darija Narrator_pvc_s43_sim75_v4.mp3';
 const art = {
@@ -52,6 +52,18 @@ const Nerves:React.FC<{frame:number;color:string}> = ({frame,color}) => <g>
   })}
 </g>;
 
+const Synapse:React.FC<{frame:number;color:string}> = ({frame,color}) => <g transform="translate(540 985)">
+  <circle r="188" fill={color} opacity=".06" />
+  {[0,1,2,3,4,5,6,7].map(i=>{
+    const angle=i*Math.PI/4;
+    const x=Math.cos(angle)*400;
+    const y=Math.sin(angle)*400;
+    const progress=((frame+i*12)%90)/90;
+    return <g key={i}><path d={`M0 0 Q ${x*.35-35} ${y*.65+25} ${x} ${y}`} fill="none" stroke={color} opacity=".35" strokeWidth="7"/><circle cx={x*progress} cy={y*progress} r={12-progress*6} fill={color} opacity={1-progress*.5}/><circle cx={x} cy={y} r={9+4*Math.sin(frame/9+i)} fill={color}/></g>;
+  })}
+  <circle r={49+5*Math.sin(frame/7)} fill={color} opacity=".24"/><circle r="19" fill="#fff3d4"/>
+</g>;
+
 const Brain:React.FC<{frame:number;highlight?:boolean}> = ({frame,highlight=false}) => <g>
   <ellipse cx="540" cy="905" rx="295" ry="255" fill="#197cff" opacity={.13+.04*Math.sin(frame/9)}/>
   <path d="M310 960 C260 900 282 792 347 780 C340 687 428 653 475 696 C512 637 587 641 620 692 C692 659 753 710 746 770 C811 794 819 875 768 920 C785 975 742 1027 683 1024 C651 1086 594 1092 548 1061 C499 1097 439 1082 413 1049 C352 1074 297 1025 310 960Z" fill="url(#brain)" stroke="#80e3ff" strokeWidth="8"/>
@@ -94,11 +106,11 @@ const Story:React.FC<{scene:number;frame:number}> = ({scene,frame}) => {
         <Hand x={580} y={490+18*Math.sin(frame/10)} scale={1.8} angle={15}/>
         <g transform="translate(540 590)"><Pulse frame={frame} color="#fff5bc" count={3}/></g>
       </g>
-      <g opacity={mix(frame,115,145)}><Nerves frame={frame} color={orange}/></g>
+      <g opacity={mix(frame,90,125)}><Nerves frame={frame} color={orange}/><Synapse frame={frame} color={orange}/></g>
     </>;
   }
   if(scene===2) return <>
-    <rect width="1080" height="1920" fill="url(#deep)"/><Nerves frame={frame*2} color={cyan}/>
+    <rect width="1080" height="1920" fill="url(#deep)"/><Nerves frame={frame*2} color={cyan}/><g opacity={1-mix(frame,50,115)}><Synapse frame={frame} color={cyan}/></g>
     <g transform={`translate(540 970) scale(${.3+mix(frame,50,200)*1.05}) translate(-540 -970)`} opacity={mix(frame,18,45)}><Brain frame={frame} highlight/></g>
     <text x="540" y="1370" textAnchor="middle" fill="white" fontSize="61" fontWeight="700" direction="rtl" opacity={mix(frame,95,120)}>المُخَيخ</text>
   </>;
@@ -110,6 +122,7 @@ const Story:React.FC<{scene:number;frame:number}> = ({scene,frame}) => {
       <path d="M540 930 C230 1020 220 1190 390 1365" stroke={cyan} fill="none" strokeWidth="7" strokeDasharray="14 14" opacity=".7"/>
       <path d="M540 930 C850 1010 870 1180 715 1365" stroke="#ffd391" fill="none" strokeWidth="7" strokeDasharray="14 14" opacity=".5"/>
       <Hand x={460+120*movement} y={1370} scale={1.25} opacity={.25} />
+      <Hand x={500+160*movement} y={1370} scale={1.25} opacity={.11} />
       <Hand x={460+120*mix(frame,60,120)} y={1370} scale={1.25}/>
       <g transform="translate(590 1370)"><Pulse frame={frame} color={cyan} count={2}/></g>
       <text x="540" y="1580" textAnchor="middle" fill={cyan} fontSize="48" fontWeight="700" direction="rtl">توقّع اللمسة</text>
@@ -120,7 +133,7 @@ const Story:React.FC<{scene:number;frame:number}> = ({scene,frame}) => {
     const returnToFace=mix(frame,225,250);
     return <>
       <rect width="1080" height="1920" fill="url(#deep)"/>
-      <g opacity={1-returnToFace}><Nerves frame={frame*2.4} color={orange}/><g transform="translate(540 1070)"><Pulse frame={frame*1.7} color={orange}/></g><Hand x={720+(1-hit)*500} y={1280} scale={1.8} flip angle={-12}/>
+      <g opacity={1-returnToFace}><Nerves frame={frame*2.4} color={orange}/><g opacity={mix(frame,38,65)*(1-mix(frame,150,205))}><Synapse frame={frame*1.4} color={orange}/></g><g transform="translate(540 1070)"><Pulse frame={frame*1.7} color={orange}/></g><Hand x={720+(1-hit)*500} y={1280} scale={1.8} flip angle={-12}/>
       <g opacity={mix(frame,50,80)} transform="translate(0 -170)"><Brain frame={frame} highlight/></g></g>
       <g opacity={returnToFace} transform={`translate(${-180*returnToFace} ${-220*returnToFace}) scale(${1.1+.2*returnToFace})`}><Art src={art.laughing} x={0} y={0} width={1080} height={1920}/></g>
       <g opacity={returnToFace} transform="translate(745 1320)"><Pulse frame={frame} color={orange} count={3}/></g>
@@ -164,6 +177,8 @@ export const TicklesReel:React.FC = () => {
     <div dir="rtl" style={{position:'absolute',top:82,right:85,color:'#fff',fontWeight:700,fontSize:30,textShadow:'0 2px 12px #031329'}}>واش عارف؟ <span style={{color:orange}}>✳</span></div>
     {subtitle && <div dir="rtl" lang="ar" style={{position:'absolute',top:200,left:80,right:80,display:'flex',justifyContent:'center',textAlign:'center',opacity:opacity(frame,subtitle[0]*30,subtitle[1]*30)}}><div style={{background:'rgba(4,19,47,.83)',borderRadius:22,padding:'13px 25px',fontWeight:700,fontSize:43,lineHeight:1.4,color:'#fff',maxWidth:920}}><div>{subtitle[2]}</div>{subtitle[3] && <div style={{color:'#ffc077'}}>{subtitle[3]}</div>}</div></div>}
     <Audio src={staticFile(audio)}/>
+    <Audio src={staticFile('audio/darija/audio-test/little-bells-diego-nava.mp3')} volume={f => 0.032 * Math.min(mix(f,0,45), 1-mix(f,1343,1403))}/>
+    {[260,460,800,1110,1230].map((start) => <Sequence key={start} from={start} durationInFrames={35}><Audio src={staticFile('audio/sfx/global-coordination-impact.wav')} volume={f => 0.035 * Math.min(mix(f,0,3),1-mix(f,25,35))}/></Sequence>)}
   </AbsoluteFill>;
 };
 export const TicklesComposition:React.FC = () => <Composition id="Wach3arefTicklesReel" component={TicklesReel} durationInFrames={1403} fps={30} width={1080} height={1920}/>;
