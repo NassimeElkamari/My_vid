@@ -35,7 +35,7 @@ const Brain: React.FC<{x:number; y:number; scale?:number; pulse:number; highligh
 </g>;
 
 const Finger: React.FC<{x:number; y:number; flip?:boolean; frame:number}> = ({x,y,flip=false,frame}) => <g transform={`translate(${x} ${y + Math.sin(frame/8)*13}) scale(${flip ? -1 : 1} 1)`}>
-  <image href={staticFile('reel3/pointing-hand.png')} x="-330" y="-88" width="350" height="145" preserveAspectRatio="xMidYMid meet" />
+  <image href={staticFile('reel3/illustrated-hand.png')} x="-330" y="-88" width="350" height="145" preserveAspectRatio="xMidYMid meet" />
 </g>;
 
 const Label: React.FC<{x:number;y:number;children:React.ReactNode;accent?:string}> = ({x,y,children,accent=blue}) => <g transform={`translate(${x} ${y})`}>
@@ -71,7 +71,7 @@ const Scene: React.FC<{kind:number;frame:number}> = ({kind,frame}) => {
         </g>
       </g>
       <g opacity={showQuestion} transform={`translate(540 920) scale(${.8+.2*showQuestion}) translate(-540 -920)`}>
-        <text x="540" y="545" textAnchor="middle" fill="white" fontSize="62" fontWeight="700">الجواب فالمخ!</text>
+        <text x="540" y="545" textAnchor="middle" fill="white" fontSize="62" fontWeight="700" direction="rtl">الجواب فالمخ!</text>
         <Brain x={540} y={920} scale={1.55} pulse={frame} highlight />
         <Signal path="M 140 1260 C 260 1130 330 1090 385 1020" frame={frame} color={blue}/>
         <Signal path="M 940 1260 C 820 1130 750 1090 695 1020" frame={frame+20}/>
@@ -118,7 +118,7 @@ const Scene: React.FC<{kind:number;frame:number}> = ({kind,frame}) => {
   return <>
     <Brain x={540} y={930} scale={1.35} pulse={frame} highlight />
     <Signal path="M 210 1310 C 275 1200 350 1150 440 1080" frame={frame}/><Signal path="M 870 1310 C 805 1200 730 1150 640 1080" frame={frame+30} color={blue}/>
-    <text x="540" y="600" textAnchor="middle" fontSize="59" fontWeight="700" fill="white">السر حتى فالمخ!</text>
+    <text x="540" y="600" textAnchor="middle" fontSize="59" fontWeight="700" fill="white" direction="rtl">السر حتى فالمخ!</text>
     <text x="540" y="1370" textAnchor="middle" fontSize="45" fontWeight="700" fill={gold}>كيتوقّع اللمسات قبل ما تحس بيها</text>
     <text x="540" y="1530" textAnchor="middle" fontSize="57" fontWeight="700" fill="white">واش عارف؟ <tspan fill={gold}>✳</tspan></text>
   </>;
