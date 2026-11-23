@@ -3,39 +3,36 @@ import {AbsoluteFill,Audio,Composition,OffthreadVideo,Sequence,continueRender,de
 import {getInfo} from '@remotion/google-fonts/Cairo';
 import captions from '../../public/reel4/captions.json';
 import {ComicScene, ComicSceneKind} from './ComicScenes';
+import {MoreScene, MoreSceneKind} from './MoreScenes';
 
 const FPS=30;
 const DURATION_FRAMES=1821;
 const family=getInfo().fontFamily;
-type Beat={start:number;end:number;clip?:number;scene?:ComicSceneKind;sourceStart?:number;zoom?:number;position?:string};
+type Beat={start:number;end:number;clip?:number;scene?:ComicSceneKind;more?:MoreSceneKind;sourceStart?:number;zoom?:number;position?:string};
 // Cuts follow the voiceover. Source offsets are in seconds within each four-second clip.
 const beats:Beat[]=[
-  {start:0,end:2.7,clip:1,sourceStart:.5,zoom:1.06},
-  {start:2.7,end:3.15,clip:2,sourceStart:.4},
-  {start:3.15,end:5.65,clip:1,sourceStart:1.4,zoom:1.1},
-  {start:5.65,end:7.05,clip:2,sourceStart:.4},
-  {start:7.05,end:7.7,clip:3,sourceStart:.6},
-  {start:7.7,end:9.2,clip:1,sourceStart:2.4,zoom:1.25,position:'50% 30%'},
-  {start:9.2,end:10.2,clip:2,sourceStart:.8,zoom:1.08},
-  {start:10.2,end:12.6,clip:3,sourceStart:.4},
+  {start:0,end:3.9,clip:1,sourceStart:0,zoom:1.04},
+  {start:3.9,end:5.6,more:'jolt'},
+  {start:5.6,end:8.8,clip:2,sourceStart:.3},
+  {start:8.8,end:12.6,more:'surprise'},
   {start:12.6,end:15.2,scene:'title'},
-  {start:15.2,end:17.75,clip:3,sourceStart:.3,zoom:1.12},
+  {start:15.2,end:17.75,more:'transition'},
   {start:17.75,end:20.3,scene:'meter'},
-  {start:20.3,end:22.8,clip:3,sourceStart:.3,zoom:1.12,position:'50% 65%'},
-  {start:22.8,end:25.02,clip:1,sourceStart:.6},
-  {start:25.02,end:26,clip:3,sourceStart:.4},
-  {start:26,end:29.34,clip:2,sourceStart:.2},
-  {start:29.34,end:31.4,clip:1,sourceStart:1.8,zoom:1.12,position:'50% 30%'},
+  {start:20.3,end:22.8,clip:3,sourceStart:.3},
+  {start:22.8,end:25.02,more:'contraction'},
+  {start:25.02,end:26.1,more:'signal'},
+  {start:26.1,end:29.34,more:'fall'},
+  {start:29.34,end:31.4,more:'question'},
   {start:31.4,end:34.4,scene:'mystery'},
-  {start:34.4,end:37.3,clip:3,sourceStart:.35},
-  {start:37.3,end:40.2,clip:4,sourceStart:.3},
-  {start:40.2,end:41.48,clip:3,sourceStart:.4,zoom:1.1},
+  {start:34.4,end:37.3,more:'uncertain'},
+  {start:37.3,end:40.3,clip:4,sourceStart:.3},
+  {start:40.3,end:41.48,more:'factorIntro'},
   {start:41.48,end:46.64,scene:'triggers'},
-  {start:46.64,end:49.5,clip:5,sourceStart:.3},
-  {start:49.5,end:52,clip:1,sourceStart:.4},
-  {start:52,end:54.8,clip:5,sourceStart:.3,zoom:1.07},
-  {start:54.8,end:57.2,clip:2,sourceStart:.4},
-  {start:57.2,end:60.7,clip:5,sourceStart:.25},
+  {start:46.64,end:49.84,clip:5,sourceStart:.3},
+  {start:49.84,end:52.12,more:'safe'},
+  {start:52.12,end:55.8,more:'sleep'},
+  {start:55.8,end:58.5,more:'closer'},
+  {start:58.5,end:60.7,more:'end'},
 ];
 const badges=[
   {start:13.36,end:15.15,text:'نفضة بداية النعاس'},
@@ -63,8 +60,8 @@ const VisualBeat:React.FC<{beat:Beat;duration:number}> = ({beat,duration})=>{
   const shaking=beat.clip===1 && impactFrame>=0 && impactFrame<14 ? Math.sin(impactFrame*2.4)*12*(1-impactFrame/14) : 0;
   const scale=(beat.zoom??1.04)+.06*(1-entrance);
   return <AbsoluteFill style={{overflow:'hidden',background:'#5AC8FA'}}>
-    <AbsoluteFill style={{transform:`translateX(${shaking}px) scale(${beat.scene?1+.06*(1-entrance):1})`}}>
-      {beat.scene ? <ComicScene kind={beat.scene} start={beat.start}/> : <OffthreadVideo src={staticFile(`reel4/scene${beat.clip}.mp4`)} startFrom={Math.round((beat.sourceStart??0)*FPS)} endAt={Math.round((beat.sourceStart??0)*FPS)+duration} volume={0} style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:beat.position??'center',transform:`scale(${scale})`,transformOrigin:beat.position??'center'}}/>}
+    <AbsoluteFill style={{transform:`translateX(${shaking}px) scale(${beat.scene||beat.more?1+.06*(1-entrance):1})`}}>
+      {beat.scene ? <ComicScene kind={beat.scene} start={beat.start}/> : beat.more ? <MoreScene kind={beat.more}/> : <OffthreadVideo src={staticFile(`reel4/scene${beat.clip}.mp4`)} startFrom={Math.round((beat.sourceStart??0)*FPS)} endAt={Math.round((beat.sourceStart??0)*FPS)+duration} volume={0} style={{width:'100%',height:'100%',objectFit:'cover',objectPosition:beat.position??'center',transform:`scale(${scale})`,transformOrigin:beat.position??'center'}}/>}
     </AbsoluteFill>
     {beat.clip===1 && globalFrame>=Math.round(3.15*fps) && globalFrame<Math.round(5.65*fps) && <svg viewBox="0 0 1080 1920" width="1080" height="1920" style={{position:'absolute',pointerEvents:'none',opacity:.8}}><g fill="#FFD60A" stroke="#111827" strokeWidth="5"><path d="M30 400 L140 475 L85 480 L150 550 L20 480 L75 475Z"/><path d="M1050 480 L935 530 L995 540 L925 610 L1060 540 L1000 530Z"/><path d="M35 900 L145 940 L80 955 L145 1000 L25 970 L70 950Z"/><path d="M1040 960 L940 1005 L1000 1015 L930 1070 L1050 1035 L1005 1010Z"/></g></svg>}
   </AbsoluteFill>;
@@ -80,7 +77,7 @@ export const Reel4:React.FC=()=>{
   },[fontHandle]);
   const ms=frame/fps*1000;
   const currentPage=pages.find(words=>ms>=words[0].startMs && ms<words[words.length-1].endMs);
-  const onComicScene=beats.some(beat=>beat.scene && frame>=Math.round(beat.start*fps) && frame<Math.round(beat.end*fps));
+  const onComicScene=beats.some(beat=>(beat.scene||beat.more) && frame>=Math.round(beat.start*fps) && frame<Math.round(beat.end*fps));
   const badge=onComicScene ? undefined : badges.find(item=>frame>=Math.round(item.start*fps)&&frame<Math.round(item.end*fps));
   const badgeFrame=badge?frame-Math.round(badge.start*fps):0;
   const badgeScale=spring({frame:badgeFrame,fps,config:{damping:15,stiffness:180},durationInFrames:12});
