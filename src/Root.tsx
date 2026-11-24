@@ -9,6 +9,8 @@ import { PaperComposition } from "./darija/reel-03-paper/PaperReel";
 
 import { Reel4Composition } from "./reel4/Reel4";
 
+import { Reel5Composition } from "./reel5/Reel5";
+
 export const RemotionRoot: React.FC = () => {
   return (
     <>
@@ -19,6 +21,7 @@ export const RemotionRoot: React.FC = () => {
       <TicklesComposition />
       <PaperComposition />
       <Reel4Composition />
+      <Reel5Composition />
     </>
   );
 };
