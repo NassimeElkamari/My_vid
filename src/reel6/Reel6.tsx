@@ -35,16 +35,11 @@ const BlindSpotTest:React.FC<{frame:number}>=({frame})=>{
 
 const Eye:React.FC<{frame:number}>=({frame})=><>
  <Text y={520} size={62}>ماشي سحر!</Text>
- <g transform="translate(0 20)">
-  <path d="M300 940 C310 730 500 630 650 685 C815 745 875 890 845 1030 C815 1200 675 1295 515 1250 C390 1210 310 1090 300 940Z" fill={CREAM} stroke={INK} strokeWidth="10"/>
-  <path d="M310 825 C245 850 225 1025 310 1080" fill="#e9faff" stroke={INK} strokeWidth="10"/>
-  <ellipse cx="397" cy="950" rx="45" ry="155" fill="#c1f2ff" stroke={INK} strokeWidth="8"/>
-  <path d="M625 695 C770 750 825 865 808 942 M808 1000 C795 1125 705 1225 625 1245" fill="none" stroke="#ff9278" strokeWidth="23" strokeLinecap="round"/>
-  <path d="M805 940 C900 925 970 950 1000 1000 C963 1010 895 1008 804 1000Z" fill="#ffc777" stroke={INK} strokeWidth="9"/>
-  <circle cx="808" cy="970" r={25+5*Math.sin(frame/7)} fill={YELLOW} stroke={INK} strokeWidth="7"/>
-  <path d="M65 840 L320 900 M65 960 H310 M65 1080 L320 1020" fill="none" stroke={YELLOW} strokeWidth="12" strokeLinecap="round"/>
-  {[0,1,2].map(i=><path key={i} d="M0 0 l15 24 l-15 24" transform={`translate(${780-i*32} ${790+i*95}) rotate(15)`} fill={BLUE} opacity=".65"/>)}
- </g>
+ <image href={staticFile('reel6/generated/detailed-eye.png')} x="65" y="620" width="950" height="633" preserveAspectRatio="xMidYMid meet"/>
+ <path d="M12 825 L195 875 M12 960 H190 M12 1095 L195 1045" fill="none" stroke={YELLOW} strokeWidth="10" strokeLinecap="round"/>
+ <circle cx="733" cy="980" r={30+4*Math.sin(frame/7)} fill="none" stroke={YELLOW} strokeWidth="7"/>
+ <circle cx="733" cy="980" r="8" fill={YELLOW}/>
+ <path d="M733 1020 Q780 1160 840 1230" fill="none" stroke={INK} strokeWidth="5" strokeDasharray="9 10"/>
  <Text y={1390} size={45}>بلاصة خروج العصب البصري</Text>
  <Text y={1470} size={41} color={BLUE}>ما فيهاش خلايا كتستقبل الضوء</Text>
 </>;
